@@ -46,7 +46,20 @@ Abrir o app não aplica uma potência nem troca o perfil. A opção “Iniciar a
 
 ## Instalação via APT e DKMS
 
-Após escolher **Automático** e **Sair** no app:
+Se o aplicativo já estiver aberto, escolha **Automático** e **Sair** antes de instalar ou atualizar.
+
+### Opção 1: baixar a versão mais recente
+
+Baixe o arquivo `.deb` na [página da release mais recente](https://github.com/cpereiraweb/AvellFanControl/releases/latest).
+Na pasta onde salvou o arquivo, execute o comando abaixo, substituindo `X.Y.Z` pela versão baixada:
+
+```bash
+sudo apt install ./avell-thermal_X.Y.Z_all.deb
+```
+
+### Opção 2: clonar o repositório e gerar o pacote
+
+Se preferir construir o pacote a partir do código-fonte, clone o repositório:
 
 ```bash
 git clone https://github.com/cpereiraweb/AvellFanControl.git

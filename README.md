@@ -5,6 +5,16 @@ Inspirado no trabalho de [Wallace Martins](https://github.com/wallacemartinss) e
 Aplicativo para GNOME com janela GTK4 e ícone na bandeja, validado neste
 **Avell A65i / ION A65i / BIOS N.1.09AVE03**, kernel7.0.0-31-generic.
 
+## Capturas de tela
+
+### Área de notificação
+
+![Menu do Avell Thermal na área de notificação, com temperaturas, RPM e controles de perfis](art/01-tray.png)
+
+### Interface
+
+![Interface do Avell Thermal com sensores, gráfico de temperatura e controles das ventoinhas](art/02-interface.png)
+
 ## Uso
 
 Abra **Avell Thermal** no menu de aplicativos, ou:

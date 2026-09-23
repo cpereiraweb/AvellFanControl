@@ -1,0 +1,15 @@
+#!/bin/sh
+set -eu
+export PATH=/usr/sbin:/usr/bin:/sbin:/bin
+case "$1" in install|upgrade)
+    if [ -e /sys/kernel/avell_profiles/fan_control ]; then
+        printf 'auto\n' > /sys/kernel/avell_profiles/fan_control
+    fi
+    if [ -e /sys/kernel/avell_profiles/fan_boost ]; then
+        printf 'auto\n' > /sys/kernel/avell_profiles/fan_boost
+    fi
+    if [ -d /sys/module/avell_profiles ]; then
+        modprobe -r avell_profiles
+    fi
+    ;;
+esac

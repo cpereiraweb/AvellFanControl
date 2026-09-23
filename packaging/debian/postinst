@@ -1,0 +1,33 @@
+#!/bin/sh
+set -eu
+export PATH=/usr/sbin:/usr/bin:/sbin:/bin
+case "$1" in configure)
+    version='@VERSION@'
+    # Compile first. If compilation fails, all legacy files are still in place.
+    if [ ! -e "/var/lib/dkms/avell-thermal/$version/source" ]; then
+        dkms add -m avell-thermal -v "$version"
+    fi
+    kernels=''
+    for build in /lib/modules/*/build; do
+        [ -d "$build" ] || continue
+        kernel=${build%/build}; kernel=${kernel##*/}
+        dkms build -m avell-thermal -v "$version" -k "$kernel"
+        kernels="$kernels $kernel"
+    done
+    [ -n "$kernels" ] || { echo 'Instale os headers do kernel antes de configurar avell-thermal.' >&2; exit 1; }
+    python3 -I /usr/lib/avell-thermal/migrate_legacy.py archive
+    # Never discard the manual backup. A failure remains visible to APT.
+    for kernel in $kernels; do
+        dkms install -m avell-thermal -v "$version" -k "$kernel"
+    done
+    if [ "$(cat /sys/class/dmi/id/sys_vendor 2>/dev/null || true)" = Avell ] &&
+       [ "$(cat /sys/class/dmi/id/product_name 2>/dev/null || true)" = A65i ] &&
+       [ "$(cat /sys/class/dmi/id/bios_version 2>/dev/null || true)" = N.1.09AVE03 ]; then
+        for other in avell_ec_probe tuxedo_io tuxedo_keyboard uniwill_wmi ec_sys; do
+            [ ! -d "/sys/module/$other" ] || { echo "Controlador concorrente: $other" >&2; exit 1; }
+        done
+        modprobe avell_profiles
+    fi
+    echo 'Avell Thermal instalado. Abra pelo menu de aplicativos. Controle manual não é iniciado automaticamente.'
+    ;;
+esac

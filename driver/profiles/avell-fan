@@ -1,0 +1,75 @@
+#!/usr/bin/python3 -I
+"""Root-owned, fixed sysfs endpoint; commands only on inherited stdin."""
+import json
+import os
+from pathlib import Path
+import select
+import signal
+import sys
+
+CONTROL = Path('/sys/kernel/avell_profiles/fan_control')
+VALUES = {'auto'} | {str(v) for v in range(50, 101, 5)}
+
+def state():
+    return json.loads(CONTROL.read_text())
+
+def session(value):
+    sid = None
+    if select.select([sys.stdin.fileno()], [], [], 0)[0]:
+        if not os.read(sys.stdin.fileno(), 256):
+            return # App quit while authentication was pending; do not start fans.
+        raise ValueError('Dados inesperados antes de iniciar a sessão.')
+    try:
+        CONTROL.write_text(value + '\n')
+        current = state()
+        if current['mode'] != 'manual' or current['percent'] != int(value):
+            raise RuntimeError('Controle manual não confirmado.')
+        sid = current['session_id']
+        print(json.dumps(current), flush=True)
+        pending = b''
+        while True:
+            if not select.select([sys.stdin.fileno()], [], [], 12)[0]:
+                break
+            chunk = os.read(sys.stdin.fileno(), 256)
+            if not chunk:
+                break
+            pending += chunk
+            if len(pending) > 256:
+                raise ValueError('Comando excessivo.')
+            while b'\n' in pending:
+                line, pending = pending.split(b'\n', 1)
+                if line == b'auto':
+                    return
+                if line != b'renew':
+                    raise ValueError('Comando de sessão inválido.')
+                CONTROL.write_text(f'renew {sid}\n')
+    finally:
+        if sid is not None:
+            current = state()
+            if current['session_id'] == sid:
+                CONTROL.write_text(f'auto {sid}\n')
+        # If setup failed before ready, the kernel still owns its timed rollback.
+
+def interrupted(signum, frame):
+    raise SystemExit(128 + signum)
+
+def main():
+    if os.geteuid() != 0:
+        raise SystemExit('Autenticação administrativa necessária.')
+    signal.signal(signal.SIGTERM, interrupted)
+    signal.signal(signal.SIGHUP, interrupted)
+    args = sys.argv[1:]
+    if len(args) == 2 and args[0] == '--session' and args[1] in VALUES - {'auto'}:
+        session(args[1])
+    elif len(args) == 1 and args[0] in VALUES:
+        CONTROL.write_text(args[0] + '\n')
+        print(json.dumps(state()), flush=True)
+    else:
+        raise SystemExit('Comando inválido.')
+
+if __name__ == '__main__':
+    try:
+        main()
+    except Exception as exc:
+        print(str(exc), file=sys.stderr)
+        raise SystemExit(1)

@@ -1,0 +1,10 @@
+#!/bin/sh
+# Installed root-owned. Fixed destination and closed vocabulary only.
+set -eu
+[ "$(/usr/bin/id -u)" = 0 ] || { echo 'Autenticação administrativa necessária.' >&2; exit 1; }
+[ "$#" = 1 ] || exit 2
+case "$1" in economy|balanced|turbo) ;; *) exit 2 ;; esac
+printf '%s\n' "$1" > /sys/kernel/avell_profiles/profile
+IFS= read -r actual < /sys/kernel/avell_profiles/profile
+[ "$actual" = "$1" ] || { echo 'O firmware não confirmou o perfil.' >&2; exit 1; }
+printf '%s\n' "$actual"

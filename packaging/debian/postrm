@@ -1,0 +1,8 @@
+#!/bin/sh
+set -eu
+# Legacy backups are user recovery data, retained even on purge. They are inert:
+# no modules-load entry or module search path points to this backup directory.
+case "$1" in purge)
+    echo 'Cópias da instalação manual, se existentes, permanecem em /var/lib/avell-thermal/legacy-backup.'
+    ;;
+esac

@@ -99,3 +99,14 @@ python3 tests/check_boost_logic.py driver/profiles/avell_profiles.c
 Testes de interface explícitos em `tests/check_tray_integration.py` requerem
 app fechado. Scripts validate_* em driver/profiles são testes REAIS de
 hardware, somente executados deliberadamente com sudo.
+
+## Downloads e releases
+
+Baixe o `.deb` e o arquivo `SHA256SUMS` na [release mais recente](https://github.com/cpereiraweb/AvellFanControl/releases/latest).
+Na pasta do download, confira com `sha256sum -c SHA256SUMS` e instale com
+`sudo apt install ./avell-thermal_0.1.5_all.deb`.
+
+O workflow executa os testes e gera um artefato em pushes e pull requests.
+Tags no formato `vX.Y.Z` publicam o pacote e seu checksum em uma GitHub Release
+após os testes. Também é possível gerar artefatos manualmente pela aba Actions.
+A compilação DKMS para o kernel do usuário ocorre na instalação, não na CI.

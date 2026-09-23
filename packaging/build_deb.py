@@ -56,10 +56,10 @@ Keywords=Avell;temperatura;ventoinha;
         put('usr/lib/modules-load.d/avell-thermal.conf','avell_profiles\n')
         copy('README.md','usr/share/doc/avell-thermal/README.md')
         copy('packaging/README.md','usr/share/doc/avell-thermal/PACKAGING.md')
-        put('usr/share/doc/avell-thermal/copyright','''Avell Thermal — local package
+        put('usr/share/doc/avell-thermal/copyright','''Avell Thermal
 Driver sources declare SPDX-License-Identifier: GPL-2.0-only.
 See /usr/share/common-licenses/GPL-2 for the driver license.
-Other application files: local/private distribution; no additional public license declared.
+Other application files: no additional public license declared.
 This package contains no proprietary OEM binaries.
 ''')
         for name in ('preinst','postinst','prerm','postrm'):
